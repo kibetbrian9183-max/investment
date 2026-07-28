@@ -27,8 +27,20 @@ phone.value = currentUser.phone;
 
 payBtn.addEventListener("click", async () => {
 
-    const phoneNumber = phone.value.trim();
+    // Get phone number
+    let phoneNumber = phone.value.trim().replace(/\s+/g, "");
 
+    // Convert 07XXXXXXXX -> 2547XXXXXXXX
+    if (/^07\d{8}$/.test(phoneNumber)) {
+        phoneNumber = "254" + phoneNumber.substring(1);
+    }
+
+    // Convert 01XXXXXXXX -> 2541XXXXXXXX
+    else if (/^01\d{8}$/.test(phoneNumber)) {
+        phoneNumber = "254" + phoneNumber.substring(1);
+    }
+
+    // Validate final number
     if (!/^254(7|1)\d{8}$/.test(phoneNumber)) {
 
         status.style.color = "red";
@@ -37,8 +49,17 @@ payBtn.addEventListener("click", async () => {
         return;
     }
 
+    // Show converted number
+    phone.value = phoneNumber;
+
+    // Ensure amount is a plain number
+    const amountToPay = Number(product.invest);
+
     status.style.color = "#0d6efd";
     status.innerHTML = "Sending STK Push...";
+
+    payBtn.disabled = true;
+    payBtn.innerHTML = "Please Wait...";
 
     try {
 
@@ -54,24 +75,25 @@ payBtn.addEventListener("click", async () => {
                 body: JSON.stringify({
 
                     phone: phoneNumber,
-
-                    amount: product.invest,
-
+                    amount: amountToPay,
                     accountReference: "PrimeVest",
-
                     transactionDesc: product.name
 
                 })
 
-            });
+            }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
 
+            payBtn.disabled = false;
+            payBtn.innerHTML = "Pay with M-Pesa";
+
             status.style.color = "red";
             status.innerHTML =
-                data.error || "Unable to send STK Push.";
+                data.error || data.message || "Unable to send STK Push.";
 
             return;
         }
@@ -80,26 +102,26 @@ payBtn.addEventListener("click", async () => {
             data.checkoutRequestId ||
             data.CheckoutRequestID;
 
+        status.style.color = "green";
         status.innerHTML =
-            "STK Push sent. Complete payment on your phone.";
+            "STK Push sent successfully. Check your phone and enter your M-Pesa PIN.";
 
         pollPayment(checkoutId);
 
-    }
+    } catch (error) {
 
-    catch (error) {
+        payBtn.disabled = false;
+        payBtn.innerHTML = "Pay with M-Pesa";
+
+        console.error(error);
 
         status.style.color = "red";
-
         status.innerHTML =
             "Cannot connect to payment server.";
-
-        console.log(error);
 
     }
 
 });
-
 // ===============================
 // CHECK PAYMENT STATUS
 // ===============================
