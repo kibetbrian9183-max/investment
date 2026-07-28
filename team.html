@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PrimeVest Team</title>
+
+<link rel="stylesheet" href="team.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+<body>
+
+<header class="header">
+    <h2>My Team</h2>
+    <p>Invite friends and earn referral bonuses.</p>
+</header>
+
+<div class="container">
+
+    <!-- Referral Link -->
+    <div class="card">
+        <h3>Your Invitation Link</h3>
+
+        <div class="link-box">
+            <input
+                type="text"
+                id="refLink"
+                readonly
+                value="https://primevest.vercel.app/register.html?ref=PV102845">
+            <button id="copyBtn">Copy</button>
+        </div>
+
+        <br>
+
+        <h4>Invitation Code</h4>
+
+        <div class="code-box">
+            <span id="inviteCode">PV102845</span>
+        </div>
+
+    </div>
+
+    <!-- Team Summary -->
+
+    <div class="card">
+
+        <h3>Team Summary</h3>
+
+        <div class="stats">
+
+            <div class="stat">
+                <h2 id="members">0</h2>
+                <p>Total Members</p>
+            </div>
+
+            <div class="stat">
+                <h2 id="active">0</h2>
+                <p>Active Members</p>
+            </div>
+
+            <div class="stat">
+                <h2>KSh <span id="bonus">0</span></h2>
+                <p>Referral Bonus</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Share -->
+
+    <div class="card">
+
+        <h3>Share Invitation</h3>
+
+        <div class="share-icons">
+
+            <a href="#">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+
+            <a href="#">
+                <i class="fab fa-facebook"></i>
+            </a>
+
+            <a href="#">
+                <i class="fab fa-telegram"></i>
+            </a>
+
+            <a href="#">
+                <i class="fab fa-x-twitter"></i>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bottom Navigation -->
+
+<nav class="bottom-nav">
+
+<a href="home.html">
+<i class="fa-solid fa-house"></i>
+<span>Home</span>
+</a>
+
+<a href="products.html">
+<i class="fa-solid fa-box"></i>
+<span>Products</span>
+</a>
+
+<a class="active" href="team.html">
+<i class="fa-solid fa-users"></i>
+<span>Team</span>
+</a>
+
+<a href="profile.html">
+<i class="fa-solid fa-user"></i>
+<span>Profile</span>
+</a>
+
+</nav>
+
+<script src="team.js"></script>
+
+</body>
+</html>
