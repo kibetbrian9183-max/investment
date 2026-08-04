@@ -1,99 +1,139 @@
-// ======================================
-// PrimeVest - Home Page
-// js/home.js
-// ======================================
+// ===============================
+// PRIMEVEST HOME
+// ===============================
 
-// Your Render Backend
-const API_BASE = "https://smartpaypesa-backend.onrender.com";
+// Redirect if not logged in
+let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-// Investment Products
+if (!currentUser) {
+    window.location.href = "index.html";
+}
+
+// Display user information
+document.getElementById("welcomeUser").innerHTML =
+    "Hi, " + currentUser.username;
+
+document.getElementById("balance").innerHTML =
+    "KSh " + currentUser.balance.toLocaleString();
+
+// =====================================
+// INVESTMENT PRODUCTS
+// =====================================
+
 const products = [
-    { amount: 500, daily: 35, duration: 30 },
-    { amount: 1000, daily: 75, duration: 30 },
-    { amount: 2000, daily: 160, duration: 30 },
-    { amount: 5000, daily: 420, duration: 30 },
-    { amount: 10000, daily: 900, duration: 30 }
+
+    {
+        name: "Starter Plan",
+        invest: 500,
+        daily: 50,
+        duration: 30
+    },
+
+    {
+        name: "Silver Plan",
+        invest: 1000,
+        daily: 110,
+        duration: 30
+    },
+
+    {
+        name: "Gold Plan",
+        invest: 3000,
+        daily: 360,
+        duration: 30
+    },
+
+    {
+        name: "Diamond Plan",
+        invest: 5000,
+        daily: 650,
+        duration: 30
+    },
+
+    {
+        name: "VIP Plan",
+        invest: 10000,
+        daily: 1400,
+        duration: 30
+    }
+
 ];
 
-// ===============================
-// Load User
-// ===============================
-let user = JSON.parse(localStorage.getItem("user")) || {
+const productList = document.getElementById("productList");
 
-    username: "Guest",
-    phone: "",
-    balance: 0,
-    investment: 0,
-    dailyIncome: 0,
-    firstPurchase: false
+products.forEach(product => {
 
-};
+    const card = document.createElement("div");
 
-// ===============================
-// Display User
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
+    card.className = "product-card";
 
-    const welcome = document.getElementById("welcomeUser");
-    const balance = document.getElementById("balance");
+    card.innerHTML = `
 
-    if (welcome) {
-        welcome.innerText = `Welcome ${user.username}`;
-    }
+        <h3>${product.name}</h3>
 
-    if (balance) {
-        balance.innerText =
-            "KSh " + Number(user.balance).toLocaleString();
-    }
+        <p><strong>Investment:</strong> KSh ${product.invest}</p>
 
-    startLiveActivity();
+        <p><strong>Daily Income:</strong> KSh ${product.daily}</p>
+
+        <p><strong>Duration:</strong> ${product.duration} Days</p>
+
+        <button>Purchase</button>
+
+    `;
+
+    card.querySelector("button").onclick = function(){
+
+        localStorage.setItem(
+            "selectedProduct",
+            JSON.stringify(product)
+        );
+
+        window.location.href = "payment.html";
+
+    };
+
+    productList.appendChild(card);
 
 });
 
-// ===============================
-// Purchase Product
-// ===============================
-function purchaseProduct(amount) {
+// =====================================
+// WALLET BUTTONS
+// =====================================
 
-    // Save amount
-    localStorage.setItem("purchaseAmount", amount);
+document.getElementById("receiveBtn").onclick = function(){
 
-    // Redirect to payment page
-    window.location.href =
-        `payment.html?amount=${amount}`;
+    window.location.href = "receive.html";
 
-}
+};
 
-// ===============================
-// Logout
-// ===============================
-function logout() {
+document.getElementById("rechargeBtn").onclick = function(){
 
-    localStorage.removeItem("loggedIn");
+    window.location.href = "recharge.html";
 
-    window.location.href = "index.html";
+};
 
-}
+document.getElementById("withdrawBtn").onclick = function(){
 
-// ===============================
-// Fake Live Activity
-// ===============================
+    window.location.href = "withdraw.html";
+
+};
+
+// =====================================
+// LIVE ACTIVITY
+// =====================================
+
 const names = [
 
-    "Brian",
-    "James",
-    "Mercy",
-    "Peter",
-    "John",
-    "Kevin",
-    "Faith",
-    "Alice",
-    "Mary",
-    "Dennis",
-    "Joy",
-    "Brenda",
-    "Linet",
-    "Collins"
+    "Brian O.",
+    "James K.",
+    "Mercy W.",
+    "Faith N.",
+    "Kevin M.",
+    "John O.",
+    "Peter K.",
+    "Grace A.",
+    "Dennis T.",
+    "Susan C."
 
 ];
 
@@ -101,53 +141,67 @@ const amounts = [
 
     500,
     1000,
-    2000,
+    3000,
     5000,
     10000
 
 ];
 
-function randomPhone() {
+function randomPhone(){
 
-    const phone =
-        Math.floor(Math.random() * 90000000) + 10000000;
+    const prefix = [
 
-    return "07" + phone.toString().substring(0, 2) +
-        "****" +
-        phone.toString().substring(6);
+        "071",
+        "072",
+        "074",
+        "075",
+        "076",
+        "079",
+        "011"
+
+    ];
+
+    const p = prefix[Math.floor(Math.random()*prefix.length)];
+
+    const a = Math.floor(Math.random()*900)+100;
+
+    const b = Math.floor(Math.random()*900)+100;
+
+    return `${p}${a}***${b}`;
 
 }
 
-function startLiveActivity() {
+function showActivity(){
 
-    const popup = document.getElementById("liveActivity");
-    const text = document.getElementById("activityText");
+    const name =
+        names[Math.floor(Math.random()*names.length)];
 
-    if (!popup || !text) return;
+    const amount =
+        amounts[Math.floor(Math.random()*amounts.length)];
 
-    setInterval(() => {
+    document.getElementById("activityText").innerHTML =
 
-        const name =
-            names[Math.floor(Math.random() * names.length)];
+        `${name} (${randomPhone()}) invested KSh ${amount}`;
 
-        const amount =
-            amounts[Math.floor(Math.random() * amounts.length)];
+}
 
-        text.innerHTML = `
-            <strong>${name}</strong>
-            (${randomPhone()})<br>
-            Just invested
-            <strong>KSh ${amount.toLocaleString()}</strong>
-        `;
+showActivity();
 
-        popup.classList.add("show");
+setInterval(showActivity,7000);
 
-        setTimeout(() => {
+// =====================================
+// COPY REFERRAL LINK
+// =====================================
 
-            popup.classList.remove("show");
+function copyReferral(){
 
-        }, 5000);
+    const link =
+    window.location.origin +
+    "/register.html?ref=" +
+    currentUser.referralCode;
 
-    }, 9000);
+    navigator.clipboard.writeText(link);
+
+    alert("Referral link copied!");
 
 }
