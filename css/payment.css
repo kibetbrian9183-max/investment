@@ -1,19 +1,20 @@
-/* Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* ======================================
+   PrimeVest Payment Page
+====================================== */
 
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-    min-height:100vh;
+    background:#f4f7fc;
     display:flex;
     justify-content:center;
     align-items:center;
-    background:linear-gradient(135deg,#0d6efd,#0046c0);
+    min-height:100vh;
     padding:20px;
 }
 
@@ -22,129 +23,143 @@ body{
     max-width:420px;
 }
 
-.payment-card{
+.card{
     background:#fff;
-    border-radius:20px;
+    border-radius:18px;
     padding:30px 25px;
-    text-align:center;
-    box-shadow:0 15px 35px rgba(0,0,0,.2);
-    animation:fadeIn .5s ease;
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
 }
 
-.icon{
-    width:80px;
-    height:80px;
-    margin:0 auto 20px;
-    border-radius:50%;
-    background:#0d6efd;
-    color:#fff;
+.logo{
     display:flex;
-    justify-content:center;
     align-items:center;
-    font-size:35px;
-}
-
-.payment-card h2{
-    color:#0d6efd;
+    justify-content:center;
+    gap:10px;
     margin-bottom:20px;
 }
 
-.summary{
-    background:#f5f7fb;
-    border-radius:15px;
-    padding:20px;
-    margin-bottom:20px;
+.logo i{
+    font-size:32px;
+    color:#1d4ed8;
 }
 
-.summary p{
+.logo h2{
+    color:#1d4ed8;
+    font-size:28px;
+}
+
+h3{
+    text-align:center;
+    color:#222;
+    margin-bottom:10px;
+}
+
+.info{
+    text-align:center;
     color:#666;
     font-size:14px;
+    margin-bottom:25px;
+    line-height:1.5;
 }
 
-.summary h3{
-    margin:8px 0 15px;
-    color:#222;
-}
-
-.summary h1{
-    color:#0d6efd;
-    font-size:36px;
+label{
+    display:block;
+    margin-bottom:8px;
+    margin-top:15px;
+    font-weight:600;
+    color:#333;
 }
 
 input{
     width:100%;
-    height:52px;
-    border:2px solid #ddd;
-    border-radius:12px;
+    height:50px;
+    border:1px solid #d9d9d9;
+    border-radius:10px;
     padding:0 15px;
     font-size:16px;
     outline:none;
-    margin-bottom:20px;
     transition:.3s;
 }
 
 input:focus{
-    border-color:#0d6efd;
+    border-color:#1d4ed8;
 }
 
-button{
+input[readonly]{
+    background:#f5f5f5;
+    font-weight:bold;
+}
+
+#payBtn{
     width:100%;
     height:52px;
     border:none;
-    border-radius:12px;
-    background:#0d6efd;
+    border-radius:10px;
+    background:#1d4ed8;
     color:#fff;
     font-size:17px;
-    font-weight:600;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:25px;
+    transition:.3s;
+}
+
+#payBtn:hover{
+    background:#2563eb;
+}
+
+#payBtn:disabled{
+    background:#94a3b8;
+    cursor:not-allowed;
+}
+
+#payBtn i{
+    margin-right:8px;
+}
+
+#status{
+    text-align:center;
+    margin-top:18px;
+    color:#16a34a;
+    font-weight:bold;
+    line-height:1.5;
+}
+
+.back-btn{
+    width:100%;
+    height:50px;
+    border:none;
+    border-radius:10px;
+    background:#e5e7eb;
+    color:#333;
+    font-size:16px;
+    font-weight:bold;
+    margin-top:15px;
     cursor:pointer;
     transition:.3s;
 }
 
-button:hover{
-    background:#0046c0;
+.back-btn:hover{
+    background:#d1d5db;
 }
 
-button:active{
-    transform:scale(.98);
+.back-btn i{
+    margin-right:8px;
 }
 
-#status{
-    margin-top:20px;
-    font-size:15px;
-    font-weight:600;
-    color:#0d6efd;
-    min-height:25px;
-    word-wrap:break-word;
-}
-
-@keyframes fadeIn{
-
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-
-}
-
+/* Mobile */
 @media(max-width:480px){
 
-    .payment-card{
-        padding:25px 20px;
+    .card{
+        padding:20px;
     }
 
-    .summary h1{
-        font-size:30px;
+    .logo h2{
+        font-size:24px;
     }
 
-    .icon{
-        width:70px;
-        height:70px;
-        font-size:30px;
+    h3{
+        font-size:20px;
     }
 
 }
