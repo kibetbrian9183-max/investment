@@ -1,193 +1,171 @@
-// ===============================
-// PRIMEVEST PAYMENT
-// ===============================
+// ======================================
+// PrimeVest - payment.js
+// ======================================
 
-const API_BASE_URL = "https://investment-mpesa-backend.onrender.com";
+// Your Render Backend URL
+const API_URL = "https://smartpaypesa-backend.onrender.com";
 
-const product = JSON.parse(localStorage.getItem("selectedProduct"));
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+// Get amount from URL
+const params = new URLSearchParams(window.location.search);
+const amount = Number(params.get("amount")) || 0;
 
-if (!product || !currentUser) {
-    window.location.href = "home.html";
-}
-
-const planName = document.getElementById("planName");
-const amount = document.getElementById("amount");
-const phone = document.getElementById("phone");
+// Elements
+const amountInput = document.getElementById("displayAmount");
+const phoneInput = document.getElementById("phone");
 const payBtn = document.getElementById("payBtn");
 const status = document.getElementById("status");
 
-planName.innerHTML = product.name;
-amount.innerHTML = "KSh " + product.invest.toLocaleString();
-phone.value = currentUser.phone;
+// Display Amount
+if (amountInput) {
+    amountInput.value = "KSh " + amount.toLocaleString();
+}
 
-// ===============================
-// PAY
-// ===============================
+// ===========================
+// Convert Phone Number
+// ===========================
+function formatPhone(phone) {
 
+    phone = phone.replace(/\D/g, "");
+
+    if (phone.startsWith("07")) {
+        return "254" + phone.substring(1);
+    }
+
+    if (phone.startsWith("01")) {
+        return "254" + phone.substring(1);
+    }
+
+    if (phone.startsWith("7")) {
+        return "254" + phone;
+    }
+
+    if (phone.startsWith("1")) {
+        return "254" + phone;
+    }
+
+    if (phone.startsWith("254")) {
+        return phone;
+    }
+
+    return null;
+}
+
+// ===========================
+// Pay Button
+// ===========================
 payBtn.addEventListener("click", async () => {
 
-    // Get phone number
-    let phoneNumber = phone.value.trim().replace(/\s+/g, "");
+    let phone = formatPhone(phoneInput.value);
 
-    // Convert 07XXXXXXXX -> 2547XXXXXXXX
-    if (/^07\d{8}$/.test(phoneNumber)) {
-        phoneNumber = "254" + phoneNumber.substring(1);
-    }
-
-    // Convert 01XXXXXXXX -> 2541XXXXXXXX
-    else if (/^01\d{8}$/.test(phoneNumber)) {
-        phoneNumber = "254" + phoneNumber.substring(1);
-    }
-
-    // Validate final number
-    if (!/^254(7|1)\d{8}$/.test(phoneNumber)) {
-
-        status.style.color = "red";
-        status.innerHTML = "Enter a valid Safaricom number.";
-
+    if (!phone) {
+        alert("Enter a valid Safaricom phone number.");
         return;
     }
 
-    // Show converted number
-    phone.value = phoneNumber;
-
-    // Ensure amount is a plain number
-    const amountToPay = Number(product.invest);
-
-    status.style.color = "#0d6efd";
-    status.innerHTML = "Sending STK Push...";
+    if (amount < 1) {
+        alert("Invalid amount.");
+        return;
+    }
 
     payBtn.disabled = true;
-    payBtn.innerHTML = "Please Wait...";
+    status.innerHTML = "Sending STK Push...";
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/mpesa/stkpush`,
-            {
-                method: "POST",
+        const response = await fetch(`${API_URL}/api/payment`, {
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            method: "POST",
 
-                body: JSON.stringify({
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-                    phone: phoneNumber,
-                    amount: amountToPay,
-                    accountReference: "PrimeVest",
-                    transactionDesc: product.name
+            body: JSON.stringify({
 
-                })
+                phone: phone,
 
-            }
-        );
+                amount: amount
+
+            })
+
+        });
 
         const data = await response.json();
 
-        if (!response.ok) {
+        if (data.success) {
+
+            status.innerHTML =
+                "STK Push sent successfully.<br>Check your phone.";
+
+            localStorage.setItem(
+                "checkoutRequestId",
+                data.checkout_request_id
+            );
+
+            checkPayment(data.checkout_request_id);
+
+        } else {
 
             payBtn.disabled = false;
-            payBtn.innerHTML = "Pay with M-Pesa";
 
-            status.style.color = "red";
-            status.innerHTML =
-                data.error || data.message || "Unable to send STK Push.";
+            status.innerHTML = "";
 
-            return;
+            alert(data.message || "Unable to initiate payment.");
+
         }
-
-        const checkoutId =
-            data.checkoutRequestId ||
-            data.CheckoutRequestID;
-
-        status.style.color = "green";
-        status.innerHTML =
-            "STK Push sent successfully. Check your phone and enter your M-Pesa PIN.";
-
-        pollPayment(checkoutId);
 
     } catch (error) {
 
+        console.log(error);
+
         payBtn.disabled = false;
-        payBtn.innerHTML = "Pay with M-Pesa";
 
-        console.error(error);
+        status.innerHTML = "";
 
-        status.style.color = "red";
-        status.innerHTML =
-            "Cannot connect to payment server.";
+        alert("Unable to connect to server.");
 
     }
 
 });
-// ===============================
-// CHECK PAYMENT STATUS
-// ===============================
 
-function pollPayment(checkoutId) {
-
-    let attempts = 0;
+// ===========================
+// Check Payment Status
+// ===========================
+function checkPayment(id) {
 
     const timer = setInterval(async () => {
-
-        attempts++;
-
-        if (attempts > 20) {
-
-            clearInterval(timer);
-
-            status.style.color = "red";
-
-            status.innerHTML =
-                "Payment verification timed out.";
-
-            return;
-
-        }
 
         try {
 
             const response = await fetch(
-                `${API_BASE_URL}/api/mpesa/status/${checkoutId}`
+                `${API_URL}/api/local/${id}`
             );
 
-            const data = await response.json();
+            const result = await response.json();
 
-            if (data.status === "pending") {
+            if (result.status === "COMPLETED") {
 
-                return;
+                clearInterval(timer);
 
-            }
-
-            clearInterval(timer);
-
-            if (data.status === "success") {
-
-                completeInvestment();
+                paymentSuccess();
 
             }
 
-            else {
+            if (result.status === "FAILED") {
 
-                status.style.color = "red";
+                clearInterval(timer);
 
-                status.innerHTML =
-                    data.resultDesc || "Payment Failed.";
+                payBtn.disabled = false;
+
+                status.innerHTML = "";
+
+                alert("Payment Failed.");
 
             }
 
-        }
+        } catch (err) {
 
-        catch (error) {
-
-            clearInterval(timer);
-
-            status.style.color = "red";
-
-            status.innerHTML =
-                "Unable to verify payment.";
+            console.log(err);
 
         }
 
@@ -195,57 +173,37 @@ function pollPayment(checkoutId) {
 
 }
 
-// ===============================
-// SAVE INVESTMENT
-// ===============================
+// ===========================
+// Payment Success
+// ===========================
+function paymentSuccess() {
 
-function completeInvestment() {
+    let user = JSON.parse(localStorage.getItem("user")) || {
 
-    let users = JSON.parse(localStorage.getItem("users")) || [];
+        balance: 0,
 
-    const index = users.findIndex(
-        u => u.phone === currentUser.phone
-    );
+        investment: 0,
 
-    if (index === -1) return;
+        firstPurchase: false
 
-    // First investment bonus
-    if (users[index].products.length === 0) {
+    };
 
-        users[index].balance += 150;
+    user.investment += amount;
+
+    if (!user.firstPurchase) {
+
+        user.balance += 150;
+
+        user.firstPurchase = true;
+
+        alert("🎉 Registration Bonus\n\nKSh 150 has been credited.");
 
     }
 
-    users[index].investmentBalance += product.invest;
+    localStorage.setItem("user", JSON.stringify(user));
 
-    users[index].totalInvestment += product.invest;
+    alert("Payment Successful!");
 
-    users[index].products.push({
-
-        ...product,
-
-        purchaseDate: Date.now(),
-
-        lastClaim: Date.now()
-
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify(users[index])
-    );
-
-    status.style.color = "green";
-
-    status.innerHTML =
-        "✅ Payment Successful! Redirecting...";
-
-    setTimeout(() => {
-
-        window.location.href = "home.html";
-
-    }, 2000);
+    window.location.href = "profile.html";
 
 }
