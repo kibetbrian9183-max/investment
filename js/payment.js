@@ -5,10 +5,14 @@
 // Your Render Backend URL
 const API_URL = "https://smartpaypesa-backend.onrender.com";
 
-// Get amount from URL
-const params = new URLSearchParams(window.location.search);
-const amount = Number(params.get("amount")) || 0;
+const product = JSON.parse(localStorage.getItem("selectedProduct"));
 
+if (!product) {
+    alert("No investment plan selected.");
+    window.location.href = "home.html";
+}
+
+const amount = Number(product.invest);
 // Elements
 const amountInput = document.getElementById("displayAmount");
 const phoneInput = document.getElementById("phone");
