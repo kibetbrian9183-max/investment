@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PrimeVest Payment</title>
+<title>PrimeVest | Payment</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 <link rel="stylesheet" href="css/payment.css">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
 </head>
 
@@ -19,49 +18,65 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <div class="container">
 
-<div class="payment-card">
+    <div class="card">
 
-<div class="icon">
-<i class="fas fa-mobile-alt"></i>
-</div>
+        <div class="logo">
 
-<h2>Complete Payment</h2>
+            <i class="fa-solid fa-chart-line"></i>
 
-<div class="summary">
+            <h2>PrimeVest</h2>
 
-<p>
-Investment Plan
-</p>
+        </div>
 
-<h3 id="planName"></h3>
+        <h3>Complete Payment</h3>
 
-<p>
-Amount
-</p>
+        <p class="info">
+            Enter your Safaricom number to receive the M-Pesa STK Push.
+        </p>
 
-<h1 id="amount"></h1>
+        <label>Investment Amount</label>
 
-</div>
+        <input
+            type="text"
+            id="displayAmount"
+            readonly
+        >
 
-<input
-type="tel"
-id="phone"
-placeholder="2547XXXXXXXX">
+        <label>Phone Number</label>
 
-<button id="payBtn">
+        <input
+            type="tel"
+            id="phone"
+            placeholder="07XXXXXXXX or 01XXXXXXXX"
+            maxlength="10"
+            autocomplete="tel"
+        >
 
-Pay with M-Pesa
+        <button id="payBtn">
 
-</button>
+            <i class="fa-solid fa-mobile-screen-button"></i>
 
-<p id="status"></p>
+            Pay Now
 
-</div>
+        </button>
+
+        <p id="status"></p>
+
+        <button
+            class="back-btn"
+            onclick="window.location.href='home.html'">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back
+
+        </button>
+
+    </div>
 
 </div>
 
 <script src="js/payment.js"></script>
 
 </body>
-
 </html>
