@@ -17,18 +17,19 @@ const payBtn = document.getElementById("payBtn");
 const status = document.getElementById("status");
 const historyList = document.getElementById("historyList");
 
-// ===============================
+// =====================================
 // SHOW BALANCE
-// ===============================
+// =====================================
 
-balance.innerHTML =
-    "KSh " + (currentUser.balance || 0).toLocaleString();
+balance.innerHTML = "KSh " + Number(currentUser.balance || 0).toLocaleString();
 
-phone.value = currentUser.phone;
+if (currentUser.phone) {
+    phone.value = currentUser.phone;
+}
 
-// ===============================
+// =====================================
 // LOAD HISTORY
-// ===============================
+// =====================================
 
 loadHistory();
 
@@ -36,10 +37,7 @@ function loadHistory() {
 
     historyList.innerHTML = "";
 
-    if (
-        !currentUser.rechargeHistory ||
-        currentUser.rechargeHistory.length === 0
-    ) {
+    if (!currentUser.rechargeHistory || currentUser.rechargeHistory.length === 0) {
 
         historyList.innerHTML = "<p>No recharge history.</p>";
         return;
@@ -60,16 +58,48 @@ function loadHistory() {
 
 }
 
-// ===============================
+// =====================================
+// PHONE FORMAT
+// =====================================
+
+function formatPhone(phoneNumber) {
+
+    phoneNumber = phoneNumber.replace(/\D/g, "");
+
+    if (phoneNumber.startsWith("07")) {
+        return "254" + phoneNumber.substring(1);
+    }
+
+    if (phoneNumber.startsWith("01")) {
+        return "254" + phoneNumber.substring(1);
+    }
+
+    if (phoneNumber.startsWith("7")) {
+        return "254" + phoneNumber;
+    }
+
+    if (phoneNumber.startsWith("1")) {
+        return "254" + phoneNumber;
+    }
+
+    if (phoneNumber.startsWith("254")) {
+        return phoneNumber;
+    }
+
+    return null;
+
+}
+
+// =====================================
 // PAY
-// ===============================
+// =====================================
 
 payBtn.onclick = async function () {
 
-    const phoneNumber = phone.value.trim();
+    const phoneNumber = formatPhone(phone.value.trim());
     const rechargeAmount = Number(amount.value);
 
-    if (!/^254(7|1)\d{8}$/.test(phoneNumber)) {
+    if (!phoneNumber) {
 
         status.style.color = "red";
         status.innerHTML = "Enter a valid Safaricom number.";
@@ -85,60 +115,53 @@ payBtn.onclick = async function () {
 
     }
 
+    payBtn.disabled = true;
+
     status.style.color = "#0d6efd";
     status.innerHTML = "Sending STK Push...";
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/mpesa/stkpush`,
-            {
+        const response = await fetch(`${API_BASE_URL}/api/payment`, {
 
-                method: "POST",
+            method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-                body: JSON.stringify({
+            body: JSON.stringify({
 
-                    phone: phoneNumber,
+                phone: phoneNumber,
 
-                    amount: rechargeAmount,
+                amount: rechargeAmount
 
-                    accountReference: "PrimeVest",
+            })
 
-                    transactionDesc: "Wallet Recharge"
-
-                })
-
-            }
-        );
+        });
 
         const data = await response.json();
 
-        if (!response.ok) {
+        if (!data.success) {
+
+            payBtn.disabled = false;
 
             status.style.color = "red";
-            status.innerHTML =
-                data.error || "STK Push failed.";
+            status.innerHTML = data.message || "Unable to initiate payment.";
 
             return;
 
         }
 
-        const checkoutId =
-            data.checkoutRequestId ||
-            data.CheckoutRequestID;
+        status.innerHTML = "STK Push sent. Complete payment on your phone.";
 
-        status.innerHTML =
-            "STK Push sent. Complete payment on your phone.";
-
-        pollPayment(checkoutId, rechargeAmount);
+        pollPayment(data.checkout_request_id, rechargeAmount);
 
     }
 
     catch (error) {
+
+        payBtn.disabled = false;
 
         status.style.color = "red";
         status.innerHTML = "Cannot connect to payment server.";
@@ -147,9 +170,9 @@ payBtn.onclick = async function () {
 
 };
 
-// ===============================
+// =====================================
 // CHECK PAYMENT
-// ===============================
+// =====================================
 
 function pollPayment(checkoutId, rechargeAmount) {
 
@@ -159,12 +182,14 @@ function pollPayment(checkoutId, rechargeAmount) {
 
         attempts++;
 
-        if (attempts > 20) {
+        if (attempts >= 40) {
 
             clearInterval(timer);
 
+            payBtn.disabled = false;
+
             status.style.color = "red";
-            status.innerHTML = "Verification timed out.";
+            status.innerHTML = "Payment verification timed out.";
 
             return;
 
@@ -172,13 +197,11 @@ function pollPayment(checkoutId, rechargeAmount) {
 
         try {
 
-            const response = await fetch(
-                `${API_BASE_URL}/api/mpesa/status/${checkoutId}`
-            );
+            const response = await fetch(`${API_BASE_URL}/api/local/${checkoutId}`);
 
             const data = await response.json();
 
-            if (data.status === "pending") {
+            if (data.status === "PENDING") {
 
                 return;
 
@@ -186,87 +209,29 @@ function pollPayment(checkoutId, rechargeAmount) {
 
             clearInterval(timer);
 
-            if (data.status === "success") {
+            payBtn.disabled = false;
+
+            if (data.status === "COMPLETED") {
 
                 completeRecharge(
                     rechargeAmount,
-                    data.mpesaReceipt || "Confirmed"
+                    data.receipt || "Confirmed"
                 );
 
             } else {
 
                 status.style.color = "red";
-                status.innerHTML =
-                    data.resultDesc || "Payment Failed.";
+                status.innerHTML = data.resultDesc || "Payment Failed.";
 
             }
 
         }
 
-        catch (error) {
+        catch (err) {
 
             clearInterval(timer);
 
+            payBtn.disabled = false;
+
             status.style.color = "red";
-            status.innerHTML =
-                "Unable to verify payment.";
-
-        }
-
-    }, 3000);
-
-}
-
-// ===============================
-// SAVE RECHARGE
-// ===============================
-
-function completeRecharge(rechargeAmount, receipt) {
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const index = users.findIndex(
-        u => u.phone === currentUser.phone
-    );
-
-    if (index === -1) return;
-
-    users[index].balance += rechargeAmount;
-
-    if (!users[index].rechargeHistory) {
-
-        users[index].rechargeHistory = [];
-
-    }
-
-    users[index].rechargeHistory.unshift({
-
-        amount: rechargeAmount,
-
-        receipt: receipt,
-
-        date: new Date().toLocaleString()
-
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify(users[index])
-    );
-
-    currentUser = users[index];
-
-    balance.innerHTML =
-        "KSh " + currentUser.balance.toLocaleString();
-
-    status.style.color = "green";
-    status.innerHTML =
-        "✅ Wallet recharged successfully.";
-
-    amount.value = "";
-
-    loadHistory();
-
-}
+            status
