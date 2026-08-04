@@ -234,4 +234,64 @@ function pollPayment(checkoutId, rechargeAmount) {
             payBtn.disabled = false;
 
             status.style.color = "red";
-            status
+            status.innerHTML = "Unable to verify payment.";
+
+        }
+
+    }, 3000);
+
+}
+
+// =====================================
+// SAVE RECHARGE
+// =====================================
+
+function completeRecharge(rechargeAmount, receipt) {
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const index = users.findIndex(
+        u => u.phone === currentUser.phone
+    );
+
+    if (index === -1) return;
+
+    users[index].balance =
+        Number(users[index].balance || 0) + rechargeAmount;
+
+    if (!users[index].rechargeHistory) {
+
+        users[index].rechargeHistory = [];
+
+    }
+
+    users[index].rechargeHistory.unshift({
+
+        amount: rechargeAmount,
+
+        receipt: receipt,
+
+        date: new Date().toLocaleString()
+
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(users[index])
+    );
+
+    currentUser = users[index];
+
+    balance.innerHTML =
+        "KSh " + Number(currentUser.balance).toLocaleString();
+
+    amount.value = "";
+
+    status.style.color = "green";
+    status.innerHTML = "✅ Wallet recharged successfully.";
+
+    loadHistory();
+
+}
