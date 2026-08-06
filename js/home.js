@@ -2,23 +2,54 @@
 // PRIMEVEST HOME
 // ===============================
 
-// Redirect if not logged in
+// Check login
 let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if (!currentUser) {
     window.location.href = "index.html";
 }
 
-// Display user information
+// Initialize missing fields
+currentUser.balance = currentUser.balance || 0;
+currentUser.totalInvestment = currentUser.totalInvestment || 0;
+currentUser.totalEarnings = currentUser.totalEarnings || 0;
+currentUser.totalWithdrawn = currentUser.totalWithdrawn || 0;
+currentUser.activePlan = currentUser.activePlan || null;
+
+// Display user info
 document.getElementById("welcomeUser").innerHTML =
     "Hi, " + currentUser.username;
 
 document.getElementById("balance").innerHTML =
     "KSh " + currentUser.balance.toLocaleString();
 
-// =====================================
+// ===============================
+// SAVE USER
+// ===============================
+
+function saveUser() {
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const index = users.findIndex(user => user.phone === currentUser.phone);
+
+    if (index !== -1) {
+        users[index] = currentUser;
+    } else {
+        users.push(currentUser);
+    }
+
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+    document.getElementById("balance").innerHTML =
+        "KSh " + currentUser.balance.toLocaleString();
+
+}
+
+// ===============================
 // INVESTMENT PRODUCTS
-// =====================================
+// ===============================
 
 const products = [
 
@@ -61,7 +92,13 @@ const products = [
 
 const productList = document.getElementById("productList");
 
+productList.innerHTML = "";
+
 products.forEach(product => {
+
+    const active =
+        currentUser.activePlan &&
+        currentUser.activePlan.name === product.name;
 
     const card = document.createElement("div");
 
@@ -77,50 +114,93 @@ products.forEach(product => {
 
         <p><strong>Duration:</strong> ${product.duration} Days</p>
 
-        <button>Purchase</button>
+        <button ${active ? "disabled" : ""}>
+            ${active ? "ACTIVE PLAN" : "Purchase"}
+        </button>
 
     `;
 
-    card.querySelector("button").onclick = function(){
+    if (!active) {
 
-        localStorage.setItem(
-            "selectedProduct",
-            JSON.stringify(product)
-        );
+        card.querySelector("button").onclick = function () {
 
-        window.location.href = "payment.html";
+            if (currentUser.balance < product.invest) {
 
-    };
+                alert("Insufficient balance. Recharge your wallet.");
+
+                return;
+
+            }
+
+            if (currentUser.activePlan) {
+
+                alert("You already have an active investment plan.");
+
+                return;
+
+            }
+
+            if (!confirm("Purchase " + product.name + "?")) {
+
+                return;
+
+            }
+
+            currentUser.balance -= product.invest;
+
+            currentUser.totalInvestment += product.invest;
+
+            currentUser.activePlan = {
+
+                name: product.name,
+                invest: product.invest,
+                daily: product.daily,
+                duration: product.duration,
+                purchaseDate: Date.now(),
+                expiryDate:
+                    Date.now() + (product.duration * 24 * 60 * 60 * 1000)
+
+            };
+
+            saveUser();
+
+            alert("Investment purchased successfully.");
+
+            location.reload();
+
+        };
+
+    }
 
     productList.appendChild(card);
 
 });
 
-// =====================================
+// ===============================
 // WALLET BUTTONS
-// =====================================
+// ===============================
 
-document.getElementById("receiveBtn").onclick = function(){
+document.getElementById("receiveBtn").onclick = function () {
 
     window.location.href = "receive.html";
 
 };
 
-document.getElementById("rechargeBtn").onclick = function(){
+document.getElementById("rechargeBtn").onclick = function () {
 
     window.location.href = "recharge.html";
 
 };
 
-document.getElementById("withdrawBtn").onclick = function(){
+document.getElementById("withdrawBtn").onclick = function () {
 
     window.location.href = "withdraw.html";
 
 };
 
-// =====================================
+// ===============================
 // LIVE ACTIVITY
-// =====================================
+// ===============================
 
 const names = [
 
@@ -147,7 +227,7 @@ const amounts = [
 
 ];
 
-function randomPhone(){
+function randomPhone() {
 
     const prefix = [
 
@@ -161,23 +241,23 @@ function randomPhone(){
 
     ];
 
-    const p = prefix[Math.floor(Math.random()*prefix.length)];
+    const p = prefix[Math.floor(Math.random() * prefix.length)];
 
-    const a = Math.floor(Math.random()*900)+100;
+    const a = Math.floor(Math.random() * 900) + 100;
 
-    const b = Math.floor(Math.random()*900)+100;
+    const b = Math.floor(Math.random() * 900) + 100;
 
     return `${p}${a}***${b}`;
 
 }
 
-function showActivity(){
+function showActivity() {
 
     const name =
-        names[Math.floor(Math.random()*names.length)];
+        names[Math.floor(Math.random() * names.length)];
 
     const amount =
-        amounts[Math.floor(Math.random()*amounts.length)];
+        amounts[Math.floor(Math.random() * amounts.length)];
 
     document.getElementById("activityText").innerHTML =
 
@@ -187,21 +267,21 @@ function showActivity(){
 
 showActivity();
 
-setInterval(showActivity,7000);
+setInterval(showActivity, 7000);
 
-// =====================================
+// ===============================
 // COPY REFERRAL LINK
-// =====================================
+// ===============================
 
-function copyReferral(){
+function copyReferral() {
 
     const link =
-    window.location.origin +
-    "/register.html?ref=" +
-    currentUser.referralCode;
+        window.location.origin +
+        "/register.html?ref=" +
+        currentUser.referralCode;
 
     navigator.clipboard.writeText(link);
 
-    alert("Referral link copied!");
+    alert("Referral link copied.");
 
 }
