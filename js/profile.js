@@ -9,36 +9,78 @@ if (!currentUser) {
 }
 
 // ===============================
+// INITIALIZE USER DATA
+// ===============================
+
+currentUser.balance = currentUser.balance || 0;
+currentUser.totalInvestment = currentUser.totalInvestment || 0;
+currentUser.totalEarnings = currentUser.totalEarnings || 0;
+currentUser.totalWithdrawn = currentUser.totalWithdrawn || 0;
+currentUser.rechargeHistory = currentUser.rechargeHistory || [];
+currentUser.earningsHistory = currentUser.earningsHistory || [];
+currentUser.activePlan = currentUser.activePlan || null;
+
+// ===============================
 // DISPLAY USER DETAILS
 // ===============================
 
-document.getElementById("username").innerHTML = currentUser.username;
-document.getElementById("phone").innerHTML = currentUser.phone;
+document.getElementById("username").innerHTML =
+    currentUser.username;
+
+document.getElementById("phone").innerHTML =
+    currentUser.phone;
 
 document.getElementById("balance").innerHTML =
-    "KSh " + (currentUser.balance || 0).toLocaleString();
+    "KSh " + currentUser.balance.toLocaleString();
 
 document.getElementById("investment").innerHTML =
-    "KSh " + (currentUser.totalInvestment || 0).toLocaleString();
+    "KSh " + currentUser.totalInvestment.toLocaleString();
 
 document.getElementById("earnings").innerHTML =
-    "KSh " + (currentUser.totalEarnings || 0).toLocaleString();
+    "KSh " + currentUser.totalEarnings.toLocaleString();
 
 document.getElementById("withdrawn").innerHTML =
-    "KSh " + (currentUser.totalWithdrawn || 0).toLocaleString();
+    "KSh " + currentUser.totalWithdrawn.toLocaleString();
 
 // ===============================
-// REFERRAL CODE
+// ACTIVE PLAN
+// ===============================
+
+const activePlan = document.getElementById("activePlan");
+
+if (activePlan) {
+
+    if (currentUser.activePlan) {
+
+        activePlan.innerHTML = `
+            <strong>${currentUser.activePlan.name}</strong><br>
+            Investment: KSh ${currentUser.activePlan.invest.toLocaleString()}<br>
+            Daily Income: KSh ${currentUser.activePlan.daily.toLocaleString()}<br>
+            Duration: ${currentUser.activePlan.duration} Days
+        `;
+
+    } else {
+
+        activePlan.innerHTML = "No Active Investment";
+
+    }
+
+}
+
+// ===============================
+// REFERRAL
 // ===============================
 
 document.getElementById("referralCode").value =
     currentUser.referralCode;
 
-// Change this to your deployed website URL
-const WEBSITE_URL = "https://investment-five-pi.vercel.app";
+const WEBSITE_URL =
+    "https://investment-five-pi.vercel.app";
 
 document.getElementById("referralLink").value =
-    WEBSITE_URL + "/register.html?ref=" + currentUser.referralCode;
+    WEBSITE_URL +
+    "/register.html?ref=" +
+    currentUser.referralCode;
 
 // ===============================
 // COPY INVITATION CODE
@@ -85,27 +127,25 @@ function logout() {
 }
 
 // ===============================
-// KEEP USER DATA UPDATED
+// REFRESH USER
 // ===============================
 
 function refreshUser() {
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
     const updatedUser = users.find(
         user => user.phone === currentUser.phone
     );
 
-    if (updatedUser) {
+    if (!updatedUser) return;
 
-        currentUser = updatedUser;
+    currentUser = updatedUser;
 
-        localStorage.setItem(
-            "currentUser",
-            JSON.stringify(updatedUser)
-        );
-
-    }
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(updatedUser)
+    );
 
 }
 
