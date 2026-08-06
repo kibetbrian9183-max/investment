@@ -245,26 +245,54 @@ function pollPayment(checkoutId, rechargeAmount) {
 // =====================================
 // SAVE RECHARGE
 // =====================================
+// SAVE RECHARGE
+// =====================================
 
 function completeRecharge(rechargeAmount, receipt) {
 
     let users = JSON.parse(localStorage.getItem("users")) || [];
 
     const index = users.findIndex(
-        u => u.phone === currentUser.phone
+        user => user.phone === currentUser.phone
     );
 
     if (index === -1) return;
 
-    users[index].balance =
-        Number(users[index].balance || 0) + rechargeAmount;
-
+    // Create recharge history if it doesn't exist
     if (!users[index].rechargeHistory) {
-
         users[index].rechargeHistory = [];
+    }
+
+    // Prevent duplicate recharge using receipt number
+    const exists = users[index].rechargeHistory.some(
+        item => item.receipt === receipt
+    );
+
+    if (exists) {
+
+        payBtn.disabled = false;
+
+        status.style.color = "orange";
+        status.innerHTML = "This recharge has already been credited.";
+
+        return;
 
     }
 
+    // Add recharge amount
+    users[index].balance =
+        Number(users[index].balance || 0) + Number(rechargeAmount);
+
+    // First recharge bonus
+    if (!users[index].firstRechargeBonus) {
+
+        users[index].balance += 150;
+
+        users[index].firstRechargeBonus = true;
+
+    }
+
+    // Save recharge history
     users[index].rechargeHistory.unshift({
 
         amount: rechargeAmount,
@@ -275,22 +303,26 @@ function completeRecharge(rechargeAmount, receipt) {
 
     });
 
-    localStorage.setItem("users", JSON.stringify(users));
-
-    localStorage.setItem(
-        "currentUser",
-        JSON.stringify(users[index])
-    );
-
+    // Update current user
     currentUser = users[index];
 
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+    // Refresh UI
     balance.innerHTML =
         "KSh " + Number(currentUser.balance).toLocaleString();
 
     amount.value = "";
 
+    payBtn.disabled = false;
+
     status.style.color = "green";
-    status.innerHTML = "✅ Wallet recharged successfully.";
+
+    status.innerHTML =
+        users[index].firstRechargeBonus
+        ? "✅ Wallet recharged successfully."
+        : "✅ Wallet recharged successfully. KSh 150 bonus added.";
 
     loadHistory();
 
