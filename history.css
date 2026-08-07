@@ -1,0 +1,155 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fc;
+    color: #222;
+    padding-bottom: 90px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    background: #1473ea;
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+header h2 {
+    font-size: 22px;
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    font-size: 22px;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+main {
+    padding: 20px;
+}
+
+
+/* =========================
+   SECTION
+========================= */
+
+.history-section {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.06);
+}
+
+.history-section h3 {
+    color: #1473ea;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+
+/* =========================
+   HISTORY ITEM
+========================= */
+
+.history-item {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    background: #fafafa;
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-item h4 {
+    color: #1473ea;
+    margin-bottom: 7px;
+}
+
+.history-item p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.success {
+    color: #159447 !important;
+    font-weight: bold;
+}
+
+.processing {
+    color: #e68a00 !important;
+    font-weight: bold;
+}
+
+.failed {
+    color: #d62828 !important;
+    font-weight: bold;
+}
+
+.empty {
+    color: #777;
+    text-align: center;
+    padding: 15px 0;
+}
+
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    height: 72px;
+
+    background: white;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.08);
+}
+
+.bottom-nav a {
+    text-decoration: none;
+    color: #777;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: 13px;
+}
+
+.bottom-nav i {
+    font-size: 20px;
+}
+
+.bottom-nav .active {
+    color: #1473ea;
+}
