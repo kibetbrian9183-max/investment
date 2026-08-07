@@ -23,6 +23,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 </header>
 
+
 <!-- ===============================
 PROFILE
 ================================ -->
@@ -39,6 +40,7 @@ PROFILE
 
 </div>
 
+
 <!-- ===============================
 ACCOUNT STATS
 ================================ -->
@@ -46,26 +48,42 @@ ACCOUNT STATS
 <div class="stats">
 
     <div class="stat">
+
         <h3>Wallet Balance</h3>
+
         <p id="balance">KSh 0</p>
+
     </div>
 
+
     <div class="stat">
+
         <h3>Total Investment</h3>
+
         <p id="investment">KSh 0</p>
+
     </div>
 
+
     <div class="stat">
+
         <h3>Total Earnings</h3>
+
         <p id="earnings">KSh 0</p>
+
     </div>
 
+
     <div class="stat">
+
         <h3>Total Withdrawn</h3>
+
         <p id="withdrawn">KSh 0</p>
+
     </div>
 
 </div>
+
 
 <!-- ===============================
 ACTIVE INVESTMENT
@@ -83,6 +101,7 @@ ACTIVE INVESTMENT
 
 </div>
 
+
 <!-- ===============================
 REFERRAL
 ================================ -->
@@ -94,7 +113,8 @@ REFERRAL
     <input
         type="text"
         id="referralCode"
-        readonly>
+        readonly
+    >
 
     <button id="copyCode">
 
@@ -104,14 +124,17 @@ REFERRAL
 
     </button>
 
+
     <br><br>
+
 
     <h3>Your Referral Link</h3>
 
     <input
         type="text"
         id="referralLink"
-        readonly>
+        readonly
+    >
 
     <button id="copyLink">
 
@@ -123,11 +146,15 @@ REFERRAL
 
 </div>
 
+
 <!-- ===============================
 MENU
 ================================ -->
 
 <div class="menu">
+
+
+    <!-- RECEIVE -->
 
     <button onclick="location.href='receive.html'">
 
@@ -137,6 +164,9 @@ MENU
 
     </button>
 
+
+    <!-- RECHARGE -->
+
     <button onclick="location.href='recharge.html'">
 
         <i class="fas fa-plus-circle"></i>
@@ -144,6 +174,9 @@ MENU
         Recharge Wallet
 
     </button>
+
+
+    <!-- WITHDRAW -->
 
     <button onclick="location.href='withdraw.html'">
 
@@ -153,6 +186,9 @@ MENU
 
     </button>
 
+
+    <!-- TRANSACTION HISTORY -->
+
     <button onclick="location.href='history.html'">
 
         <i class="fas fa-clock-rotate-left"></i>
@@ -160,6 +196,9 @@ MENU
         Transaction History
 
     </button>
+
+
+    <!-- SETTINGS -->
 
     <button onclick="location.href='settings.html'">
 
@@ -169,6 +208,9 @@ MENU
 
     </button>
 
+
+    <!-- SUPPORT -->
+
     <button onclick="location.href='support.html'">
 
         <i class="fas fa-headset"></i>
@@ -176,6 +218,20 @@ MENU
         Contact Support
 
     </button>
+
+
+    <!-- ABOUT -->
+
+    <button onclick="location.href='about.html'">
+
+        <i class="fas fa-circle-info"></i>
+
+        About PrimeVest
+
+    </button>
+
+
+    <!-- LOGOUT -->
 
     <button onclick="logout()">
 
@@ -186,6 +242,7 @@ MENU
     </button>
 
 </div>
+
 
 <!-- ===============================
 BOTTOM NAVIGATION
@@ -201,6 +258,7 @@ BOTTOM NAVIGATION
 
     </a>
 
+
     <a href="profile.html" class="active">
 
         <i class="fas fa-user"></i>
@@ -210,6 +268,7 @@ BOTTOM NAVIGATION
     </a>
 
 </nav>
+
 
 <script src="js/profile.js"></script>
 
